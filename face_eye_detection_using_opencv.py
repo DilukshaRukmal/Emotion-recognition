@@ -1,16 +1,5 @@
-# https://youtu.be/Fuve1nAdm8k
-"""
-Face and eye detection using opencv (Haar Cascade classificaion)
 
-Download face and eye models:
-Go to these links, click on RAW and save as... otherwise you'd be saving html files of Github page. '
-    https://github.com/Itseez/opencv/blob/master/data/haarcascades/haarcascade_frontalface_default.xml
-    https://github.com/Itseez/opencv/blob/master/data/haarcascades/haarcascade_eye.xml
-    
-"""
-
-#Verify on static image
-
+#Verify on static image (This part is only for testing)
 import numpy as np
 import cv2
 
@@ -19,18 +8,9 @@ eye_cascade = cv2.CascadeClassifier('haarcascades_models/haarcascade_eye.xml')
 
 img = cv2.imread('obamas.jpg')
 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-
-#First detect face and then look for eyes inside the face.
-#Multiscale refers to detecting objects (faces) at multiple scales. 
+ 
 faces = face_cascade.detectMultiScale(gray, 1.3, 5) #scaleFactor = 1.3, minNeighbors = 3
-#Above faces returns a list of rectangles. For Obama image we only have 1 face
-#so it return a tuplr of (1,4) --> 1 represents one rectangle and 4 represents
-#the x,y,w,h values that define the square.
 
-#Obamas image with both barack and Michelle it returns a tuple of (2,4) --> 2 faces.
-
-#For each detected face now detect eyes. 
-#For emotion detection this is where we update code to identify facial emotion
 for (x,y,w,h) in faces:
     img = cv2.rectangle(img,(x,y),(x+w,y+h),(255,0,0),2)   #Draw red bounding box around the face
     roi_gray = gray[y:y+h, x:x+w] #Original gray image but only the detected face part

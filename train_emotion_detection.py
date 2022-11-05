@@ -1,7 +1,4 @@
-# https://youtu.be/P4OevrwTq78
 """
-Train a deep learning model on facial emotion detection
-
 Dataset from: https://www.kaggle.com/msambare/fer2013
 """
 
@@ -15,10 +12,12 @@ import numpy as np
 
 IMG_HEIGHT=48 
 IMG_WIDTH = 48
-batch_size=32
+batch_size = 32 # default tensorflow batchsize
 
 train_data_dir='data/train/'
 validation_data_dir='data/test/'
+
+#data generator for augment & feed images to GPU
 
 train_datagen = ImageDataGenerator(
 					rescale=1./255,
@@ -35,7 +34,7 @@ train_generator = train_datagen.flow_from_directory(
 					color_mode='grayscale',
 					target_size=(IMG_HEIGHT, IMG_WIDTH),
 					batch_size=batch_size,
-					class_mode='categorical',
+					class_mode='categorical', #due to having several classes
 					shuffle=True)
 
 validation_generator = validation_datagen.flow_from_directory(
@@ -49,16 +48,6 @@ validation_generator = validation_datagen.flow_from_directory(
 #Verify our generator by plotting a few faces and printing corresponding labels
 class_labels=['Angry','Disgust', 'Fear', 'Happy','Neutral','Sad','Surprise']
 
-img, label = train_generator.__next__()
-
-import random
-
-i=random.randint(0, (img.shape[0])-1)
-image = img[i]
-labl = class_labels[label[i].argmax()]
-plt.imshow(image[:,:,0], cmap='gray')
-plt.title(labl)
-plt.show()
 ##########################################################
 
 
@@ -84,22 +73,29 @@ model.add(Flatten())
 model.add(Dense(512, activation='relu'))
 model.add(Dropout(0.2))
 
-model.add(Dense(7, activation='softmax'))
+model.add(Dense(7, activation='softmax')) # have seven classes
 
-model.compile(optimizer = 'adam', loss='categorical_crossentropy', metrics=['accuracy'])
 print(model.summary())
+
+######################################################################
+#Compile the model
+
+model.compile(optimizer = tensorflow.keras.optimizers.Adam(learning_rate=0.001),
+				 loss='categorical_crossentropy',
+				  metrics=['accuracy'])
+
 
 
 train_path = "data/train/"
-test_path = "data/test"
+validation_path = "data/test"
 
 num_train_imgs = 0
 for root, dirs, files in os.walk(train_path):
     num_train_imgs += len(files)
     
 num_test_imgs = 0
-for root, dirs, files in os.walk(test_path):
-    num_test_imgs += len(files)
+for root, dirs, files in os.walk(validation_path):
+    num_validation_imgs += len(files)
 
 
 epochs=50
@@ -108,7 +104,7 @@ history=model.fit(train_generator,
                 steps_per_epoch=num_train_imgs//batch_size,
                 epochs=epochs,
                 validation_data=validation_generator,
-                validation_steps=num_test_imgs//batch_size)
+                validation_steps=num_validation_imgs//batch_size)
 
 model.save('emotion_detection_model_100epochs.h5')
 
@@ -141,6 +137,7 @@ plt.show()
 from keras.models import load_model
 
 
+
 #Test the model
 my_model = load_model('emotion_detection_model_100epochs.h5', compile=False)
 
@@ -171,3 +168,11 @@ pred_labl = class_labels[predictions[n]]
 plt.imshow(image[:,:,0], cmap='gray')
 plt.title("Original label is:"+orig_labl+" Predicted is: "+ pred_labl)
 plt.show()
+
+
+
+#####################################################
+Confusion matrix
+#import pandas as pd
+#from sklearn.metrics import classification_report
+#report = pd.DataFrame(classification_report("actual_arr","predicted_arr",output_dict=True))

@@ -7,9 +7,7 @@ import numpy as np
 import time
 
 face_classifier=cv2.CascadeClassifier('haarcascades_models/haarcascade_frontalface_default.xml')
-
-#### PREDICT USING tflite ###
-#On RPi you can try both opt and no opt. 
+ 
 
 # Load the TFLite model and allocate tensors.
 emotion_interpreter = Interpreter(model_path="emotion_detection_model_100epochs_no_opt.tflite")
