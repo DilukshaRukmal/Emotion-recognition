@@ -1,4 +1,4 @@
-# https://youtu.be/NJpS-sFGLng
+
 """
 Convert keras trained h5 model to tflite for deployment onto edge devices. 
 
